@@ -43,17 +43,18 @@ all =
                 Expect.all
                     [ \updatedList -> Expect.equal (List.length initialCards + 1) (List.length updatedList)
                     ]
-                    (Card.toList newCard initialCards)
+                    (Card.toList initialCards newCard)
         , test "A card should should be editable given some details and a card id." <|
             \_ ->
                 let
                     editedCard =
-                        Card.edit
-                            { id = dummy1.id
-                            , back = "My back gives me trouble."
-                            , front = "My ____ gives me trouble."
-                            , title = "My title"
-                            }
+                        Card.inProgress <|
+                            Card.edit
+                                { dummy1
+                                    | back = "My back gives me trouble."
+                                    , front = "My ____ gives me trouble."
+                                    , title = "My title"
+                                }
 
                     -- TODO: Fix the fact that both cards in this list have non-unique ids
                     initialCards =
@@ -66,7 +67,7 @@ all =
                     [ \updatedList -> Expect.equal (List.length initialCards) (List.length updatedList)
                     , \updatedList -> Expect.equal (editedFromList updatedList) (Just editedCard)
                     ]
-                    (Card.toList editedCard initialCards)
+                    (Card.toList initialCards editedCard)
         , test "A card should be deleted from cards list." <|
             \_ ->
                 let
