@@ -1,0 +1,122 @@
+$govuk-assets-path: "assets/";
+
+@import "govuk/all";
+/*
+  elm-hot creates an additional div wrapper around the app to make HMR possible.
+  This could break styling in development mode if you are using Elm UI.
+
+  More context in the issue:
+    https://github.com/halfzebra/create-elm-app/issues/320
+*/
+[data-elm-hot="true"] {
+  height: inherit;
+}
+
+body {
+  font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  color: #293c4b;
+}
+
+img {
+  margin: 20px 0;
+  max-width: 200px;
+}
+
+button {
+  height: 35px;
+  min-width: 75px;
+  border: 1px solid coral;
+  background-color: azure;
+}
+
+#app {
+    background-color: #f3f2f1;
+  margin: 0 auto;
+  max-width: 300px;
+  padding: 10px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.no-list, .list {
+    height: 450px;
+} 
+
+
+.list {
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 20px;
+    padding-top: 5px;
+    border-bottom: 3px solid #e5e5e5;
+    border-top: 3px solid #e5e5e5;
+    width: 100%;
+}
+
+.list__item {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100px;
+  background-color: #fff;
+  padding: 8px 8px 0px;
+  margin-bottom: 12px;
+  box-shadow: 2px 2px 5px 0px #e3e3e3;
+  border-bottom: 4px solid #bbb;
+
+  .item__title {
+      margin-bottom: 10px;
+  }
+  .warning-hidden {
+      box-sizing: border-box;
+      visibility: hidden;
+      min-height: 30px;
+      margin-bottom: 0px !important; 
+  }
+
+  .warning__content {
+       margin-bottom: 10px;
+
+       & > span,
+       & > strong {
+           font-size: 1em; 
+       }
+
+       & > span {
+           min-height: 1.5em;
+           min-width: 1.5em;
+           line-height: 1.2em;
+           margin-top: -0.25em;
+       }
+
+       & > strong {
+           padding-left: 2em;
+       }
+   }
+}
+
+.notification__content > p {
+    font-size: 1em;
+}
+
+.govuk-button-group {
+    margin-bottom: 5px;
+
+    & > button {
+        box-shadow: 0 3px 0 #0b0c0c;
+        border: 1px #0b0c0c solid;
+    }
+}
+
+.form {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 16px;
+    box-shadow: 2px 2px 5px 0px #e3e3e3;
+    border-bottom: 5px solid #bbb;
+
+}

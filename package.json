@@ -1,0 +1,21 @@
+{
+  "name": "flashcard-adder",
+  "version": "1.0.0",
+  "description": "This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "govuk-frontend": "^4.4.1",
+    "sass": "^1.57.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "build-css": "npx sass src/styles/main.scss src/main.css --no-source-map",
+     "watch-css": "npx sass src/styles/main.scss src/main.css --no-source-map --load-path=node_modules/govuk-frontend --watch"
+  },
+  "author": "Jack Murphy",
+  "license": "MIT"
+}
