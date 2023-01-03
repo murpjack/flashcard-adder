@@ -16,7 +16,7 @@ which can be imported into a flashcard application, such as Anki.
 * List of cards is restored from localstorage, where a list has been saved.
 * A List may be exported as a '.csv' file
 
-![crud-demo]("public/docs/crud-demo.mp4")
+![crud-demo](public/docs/crud-demo.mp4)
 
 
 ## Contributions welcome
