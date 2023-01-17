@@ -10,7 +10,7 @@ dummy1 =
     Card.create "card1"
         |> (Card.changePart Card.Back "Back"
                 >> Card.changePart Card.Front "Front"
-                >> Card.changePart Card.Title "Title"
+                >> Card.changePart Card.Reference "card1"
            )
 
 
@@ -19,7 +19,7 @@ dummy2 =
     Card.create "card2"
         |> (Card.changePart Card.Back "Back"
                 >> Card.changePart Card.Front "Front"
-                >> Card.changePart Card.Title "Title"
+                >> Card.changePart Card.Reference "card2"
            )
 
 
@@ -33,7 +33,7 @@ all =
                         Card.create "newCard1"
                             |> (Card.changePart Card.Back "My back gives me trouble."
                                     >> Card.changePart Card.Front "My ____ gives me trouble."
-                                    >> Card.changePart Card.Title "Title"
+                                    >> Card.changePart Card.Reference "Title"
                                )
 
                     -- TODO: Fix the fact that both cards in this list have non-unique ids
@@ -48,12 +48,11 @@ all =
             \_ ->
                 let
                     editedCard =
-                        Card.inProgress <|
+                        Card.inProgress dummy1 <|
                             Card.edit
                                 { dummy1
                                     | back = "My back gives me trouble."
                                     , front = "My ____ gives me trouble."
-                                    , title = "My title"
                                 }
 
                     -- TODO: Fix the fact that both cards in this list have non-unique ids

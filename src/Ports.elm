@@ -6,6 +6,7 @@ port module Ports exposing
     )
 
 import Card exposing (Card)
+import Card.Data as Card
 import Json.Decode as Decode
 import Json.Encode as Encode
 

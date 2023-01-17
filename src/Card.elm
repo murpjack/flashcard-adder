@@ -2,45 +2,39 @@ module Card exposing
     ( Card
     , Id
     , Part(..)
-    , allFinished
-    , asCsvString
+    , Progress(..)
     , backFieldName
     , byId
     , changePart
     , create
-    , decode
     , delete
     , edit
-    , encode
+    , finished
     , frontFieldName
+    , idFromString
+    , idToString
     , inProgress
+    , isInProgress
+    , notStarted
     , partToFieldName
-    , titleFieldName
-    , toCsvData
+    , referenceFieldName
     , toList
     )
 
-import Csv.Encode exposing (Csv)
-import Html
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
 import List.Extra as List
-import Url
 
 
 type Id
     = Id String
 
 
-type Part
-    = Back
-    | Front
-    | Title
+
+-- the card attached to InProgress is the initial value on start edit
 
 
 type Progress
     = NotStarted
-    | InProgress
+    | InProgress Card
     | Finished
 
 
@@ -49,7 +43,7 @@ type alias Card =
     , back : String
     , front : String
     , progress : Progress
-    , title : String
+    , reference : String
     }
 
 
@@ -59,7 +53,17 @@ type alias Card =
 
 create : String -> Card
 create newId =
-    Card (idFromString newId) "" "" NotStarted "My new card"
+    Card (idFromString newId) "" "" NotStarted newId
+
+
+edit : Card -> Card
+edit { id, back, front, progress, reference } =
+    Card id back front progress reference
+
+
+delete : Card -> List Card -> List Card
+delete card cards =
+    List.remove card cards
 
 
 idFromString : String -> Id
@@ -72,24 +76,24 @@ idToString (Id id) =
     id
 
 
-edit : Card -> Card
-edit { id, back, front, progress, title } =
-    Card id back front progress title
-
-
-
--- TODO: This should only ever remove one card
-
-
-delete : Card -> List Card -> List Card
-delete card cards =
-    List.remove card cards
-
-
-inProgress : Card -> Card
-inProgress card =
+notStarted : Card -> Card
+notStarted card =
     { card
-        | progress = InProgress
+        | progress = NotStarted
+    }
+
+
+inProgress : Card -> Card -> Card
+inProgress original card =
+    { card
+        | progress = InProgress original
+    }
+
+
+finished : Card -> Card
+finished card =
+    { card
+        | progress = Finished
     }
 
 
@@ -97,18 +101,14 @@ inProgress card =
 -- Find
 
 
-allFinished : List Card -> List Card
-allFinished =
-    List.foldr
-        (\card acc ->
-            case card.progress of
-                Finished ->
-                    card :: acc
+isInProgress : Card -> Bool
+isInProgress card =
+    case card.progress of
+        InProgress _ ->
+            True
 
-                _ ->
-                    acc
-        )
-        []
+        _ ->
+            False
 
 
 
@@ -148,11 +148,17 @@ updateAtId updated =
 -- Form
 
 
+type Part
+    = Back
+    | Front
+    | Reference
+
+
 partToFieldName : Part -> String
 partToFieldName cardPart =
     case cardPart of
-        Title ->
-            "title"
+        Reference ->
+            "reference"
 
         Back ->
             "back"
@@ -161,9 +167,9 @@ partToFieldName cardPart =
             "front"
 
 
-titleFieldName : String
-titleFieldName =
-    partToFieldName Title
+referenceFieldName : String
+referenceFieldName =
+    partToFieldName Reference
 
 
 backFieldName : String
@@ -179,99 +185,11 @@ frontFieldName =
 changePart : Part -> String -> Card -> Card
 changePart part value card =
     case part of
-        Title ->
-            { card | title = value }
+        Reference ->
+            { card | reference = value }
 
         Back ->
             { card | back = value }
 
         Front ->
             { card | front = value }
-
-
-
--- Data
-
-
-decode : Decoder Card
-decode =
-    Decode.map5 Card
-        (Decode.field "id"
-            (Decode.string
-                |> Decode.andThen (Decode.succeed << idFromString)
-            )
-        )
-        (Decode.field "back" Decode.string)
-        (Decode.field "front" Decode.string)
-        (Decode.field "progress" Decode.string
-            |> Decode.andThen (Decode.succeed << progressFromStr)
-        )
-        (Decode.field "title" Decode.string)
-
-
-encode : Card -> Encode.Value
-encode card =
-    Encode.object
-        [ ( "id"
-          , Encode.string <| idToString card.id
-          )
-        , ( "back", Encode.string card.back )
-        , ( "front", Encode.string card.front )
-        , ( "progress", Encode.string (progressToStr card.progress) )
-        , ( "title", Encode.string card.title )
-        ]
-
-
-progressFromStr : String -> Progress
-progressFromStr str =
-    case str of
-        "NotStarted" ->
-            NotStarted
-
-        "InProgress" ->
-            InProgress
-
-        "Finished" ->
-            Finished
-
-        _ ->
-            NotStarted
-
-
-progressToStr : Progress -> String
-progressToStr progress =
-    case progress of
-        NotStarted ->
-            "NotStarted"
-
-        InProgress ->
-            "InProgress"
-
-        Finished ->
-            "Finished"
-
-
-
--- Convert to/from CSV format
-
-
-toCsvData : List Card -> Csv
-toCsvData cards =
-    Csv
-        [ "back", "front", "title" ]
-        (List.map toRow cards)
-
-
-toRow : Card -> List String
-toRow card =
-    [ card.back
-    , card.front
-    , card.title
-    ]
-
-
-asCsvString : List Card -> String
-asCsvString cards =
-    cards
-        |> toCsvData
-        |> Csv.Encode.toString

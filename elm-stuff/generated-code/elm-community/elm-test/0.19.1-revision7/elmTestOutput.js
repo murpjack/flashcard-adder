@@ -2602,7 +2602,7 @@ var $author$project$Card$Front = {$: 'Front'};
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var $author$project$Card$Title = {$: 'Title'};
+var $author$project$Card$Reference = {$: 'Reference'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm_explorations$test$Test$Runner$Failure$EmptyList = {$: 'EmptyList'};
 var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
@@ -2702,10 +2702,10 @@ var $author$project$Card$byId = F2(
 var $author$project$Card$changePart = F3(
 	function (part, value, card) {
 		switch (part.$) {
-			case 'Title':
+			case 'Reference':
 				return _Utils_update(
 					card,
-					{title: value});
+					{reference: value});
 			case 'Back':
 				return _Utils_update(
 					card,
@@ -2721,10 +2721,11 @@ var $elm$core$Basics$composeR = F3(
 		return g(
 			f(x));
 	});
-var $author$project$Card$Card = F4(
-	function (id, back, front, title) {
-		return {back: back, front: front, id: id, title: title};
+var $author$project$Card$Card = F5(
+	function (id, back, front, progress, reference) {
+		return {back: back, front: front, id: id, progress: progress, reference: reference};
 	});
+var $author$project$Card$NotStarted = {$: 'NotStarted'};
 var $elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -2735,12 +2736,13 @@ var $author$project$Card$idFromString = function (str) {
 	return $author$project$Card$Id(str);
 };
 var $author$project$Card$create = function (newId) {
-	return A4(
+	return A5(
 		$author$project$Card$Card,
 		$author$project$Card$idFromString(newId),
 		'',
 		'',
-		'');
+		$author$project$Card$NotStarted,
+		newId);
 };
 var $elm$core$List$foldl = F3(
 	function (func, acc, list) {
@@ -3184,7 +3186,7 @@ var $author$project$Tests$dummy1 = A3(
 	A2(
 		$elm$core$Basics$composeR,
 		A2($author$project$Card$changePart, $author$project$Card$Front, 'Front'),
-		A2($author$project$Card$changePart, $author$project$Card$Title, 'Title')),
+		A2($author$project$Card$changePart, $author$project$Card$Reference, 'card1')),
 	$author$project$Card$create('card1'));
 var $author$project$Tests$dummy2 = A3(
 	$elm$core$Basics$composeR,
@@ -3192,14 +3194,15 @@ var $author$project$Tests$dummy2 = A3(
 	A2(
 		$elm$core$Basics$composeR,
 		A2($author$project$Card$changePart, $author$project$Card$Front, 'Front'),
-		A2($author$project$Card$changePart, $author$project$Card$Title, 'Title')),
+		A2($author$project$Card$changePart, $author$project$Card$Reference, 'card2')),
 	$author$project$Card$create('card2'));
 var $author$project$Card$edit = function (_v0) {
 	var id = _v0.id;
 	var back = _v0.back;
 	var front = _v0.front;
-	var title = _v0.title;
-	return A4($author$project$Card$Card, id, back, front, title);
+	var progress = _v0.progress;
+	var reference = _v0.reference;
+	return A5($author$project$Card$Card, id, back, front, progress, reference);
 };
 var $elm_explorations$test$Test$Runner$Failure$Equality = F2(
 	function (a, b) {
@@ -3249,6 +3252,17 @@ var $elm_explorations$test$Expect$equateWith = F4(
 		return usesFloats ? $elm_explorations$test$Expect$fail(floatError) : A5($elm_explorations$test$Expect$testWith, $elm_explorations$test$Test$Runner$Failure$Equality, reason, comparison, b, a);
 	});
 var $elm_explorations$test$Expect$equal = A2($elm_explorations$test$Expect$equateWith, 'Expect.equal', $elm$core$Basics$eq);
+var $author$project$Card$InProgress = function (a) {
+	return {$: 'InProgress', a: a};
+};
+var $author$project$Card$inProgress = F2(
+	function (original, card) {
+		return _Utils_update(
+			card,
+			{
+				progress: $author$project$Card$InProgress(original)
+			});
+	});
 var $elm$core$List$length = function (xs) {
 	return A3(
 		$elm$core$List$foldl,
@@ -3289,7 +3303,7 @@ var $author$project$Card$updateAtId = function (updated) {
 		_List_Nil);
 };
 var $author$project$Card$toList = F2(
-	function (card, cards) {
+	function (cards, card) {
 		var _v0 = A2($author$project$Card$byId, card.id, cards);
 		if (_v0.$ === 'Just') {
 			return A2($author$project$Card$updateAtId, card, cards);
@@ -3315,7 +3329,7 @@ var $author$project$Tests$all = A2(
 					A2(
 						$elm$core$Basics$composeR,
 						A2($author$project$Card$changePart, $author$project$Card$Front, 'My ____ gives me trouble.'),
-						A2($author$project$Card$changePart, $author$project$Card$Title, 'Title')),
+						A2($author$project$Card$changePart, $author$project$Card$Reference, 'Title')),
 					$author$project$Card$create('newCard1'));
 				var initialCards = _List_fromArray(
 					[$author$project$Tests$dummy1, $author$project$Tests$dummy2]);
@@ -3330,7 +3344,7 @@ var $author$project$Tests$all = A2(
 								$elm$core$List$length(updatedList));
 						}
 						]),
-					A2($author$project$Card$toList, newCard, initialCards));
+					A2($author$project$Card$toList, initialCards, newCard));
 			}),
 			A2(
 			$elm_explorations$test$Test$test,
@@ -3339,8 +3353,13 @@ var $author$project$Tests$all = A2(
 				var initialCards = _List_fromArray(
 					[$author$project$Tests$dummy1, $author$project$Tests$dummy2]);
 				var editedFromList = $author$project$Card$byId($author$project$Tests$dummy1.id);
-				var editedCard = $author$project$Card$edit(
-					{back: 'My back gives me trouble.', front: 'My ____ gives me trouble.', id: $author$project$Tests$dummy1.id, title: 'My title'});
+				var editedCard = A2(
+					$author$project$Card$inProgress,
+					$author$project$Tests$dummy1,
+					$author$project$Card$edit(
+						_Utils_update(
+							$author$project$Tests$dummy1,
+							{back: 'My back gives me trouble.', front: 'My ____ gives me trouble.'})));
 				return A2(
 					$elm_explorations$test$Expect$all,
 					_List_fromArray(
@@ -3358,7 +3377,7 @@ var $author$project$Tests$all = A2(
 								$elm$core$Maybe$Just(editedCard));
 						}
 						]),
-					A2($author$project$Card$toList, editedCard, initialCards));
+					A2($author$project$Card$toList, initialCards, editedCard));
 			}),
 			A2(
 			$elm_explorations$test$Test$test,
@@ -6751,11 +6770,11 @@ var $author$project$Test$Generated$Main$main = A2(
 	{
 		globs: _List_Nil,
 		paths: _List_fromArray(
-			['/home/jackmurphy/Development/j/flashcard-adder/tests/Tests.elm']),
+			['/home/jackmurphy/j/flashcard-adder/tests/Tests.elm']),
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$UseColor),
 		runs: 100,
-		seed: 147258943446650
+		seed: 157948764338072
 	},
 	_List_fromArray(
 		[
@@ -6771,7 +6790,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "/tmp/elm_test-13174.sock";
+var pipeFilename = "/tmp/elm_test-11452.sock";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

@@ -3,7 +3,7 @@ let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-
 let v:this_session=expand("<sfile>:p")
 silent only
 silent tabonly
-cd ~/Development/j/flashcard-adder
+cd ~/j/flashcard-adder
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
@@ -15,21 +15,25 @@ else
 endif
 badd +1 ~/.bashrc
 badd +1 ~/.tmux.conf
-badd +270 ~/.config/nvim/init.vim
-badd +317 src/Main.elm
-badd +56 tests/Tests.elm
-badd +215 src/Card.elm
-badd +1 term://~/Development/j/flashcard-adder//17199:/bin/bash
-badd +8 term://~/Development/j/flashcard-adder//9119:/bin/bash
-badd +71 src/Ports.elm
-badd +25 src/index.js
-badd +1 src/Flags.elm
-badd +9 README.md
-badd +52 src/styles/main.scss
-badd +5 ~/.config/nvim/coc-settings.json
+badd +29 ~/.config/nvim/init.vim
+badd +121 src/Main.elm
+badd +44 src/Route.elm
+badd +32 src/CardEdit.elm
+badd +133 src/CardList.elm
+badd +87 src/Card.elm
+badd +4 src/Flags.elm
+badd +14 src/Ports.elm
+badd +130 src/Card/Data.elm
+badd +9 elm.json
+badd +47 .git/hooks/pre-commit.sample
+badd +8 scripts/install-hooks.bash
+badd +4 scripts/pre-commit.bash
+badd +64 tests/Tests.elm
+badd +0 term://~/j/flashcard-adder//11277:/bin/bash
+badd +5 .gitignore
 argglobal
 %argdel
-edit src/styles/main.scss
+edit tests/Tests.elm
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
@@ -53,14 +57,9 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe 'vert 1resize ' . ((&columns * 70 + 106) / 213)
-exe 'vert 2resize ' . ((&columns * 71 + 106) / 213)
-exe '3resize ' . ((&lines * 27 + 28) / 56)
-exe 'vert 3resize ' . ((&columns * 70 + 106) / 213)
-exe '4resize ' . ((&lines * 26 + 28) / 56)
-exe 'vert 4resize ' . ((&columns * 70 + 106) / 213)
+wincmd =
 argglobal
-balt src/index.js
+balt .gitignore
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -71,19 +70,18 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 52 - ((38 * winheight(0) + 27) / 54)
+let s:l = 64 - ((27 * winheight(0) + 24) / 48)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 52
-normal! 021|
+keepjumps 64
+normal! 018|
 wincmd w
 argglobal
-if bufexists(fnamemodify("src/Main.elm", ":p")) | buffer src/Main.elm | else | edit src/Main.elm | endif
+if bufexists(fnamemodify("tests/Tests.elm", ":p")) | buffer tests/Tests.elm | else | edit tests/Tests.elm | endif
 if &buftype ==# 'terminal'
-  silent file src/Main.elm
+  silent file tests/Tests.elm
 endif
-balt ~/.config/nvim/coc-settings.json
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -94,20 +92,19 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 317 - ((26 * winheight(0) + 27) / 54)
+let s:l = 50 - ((23 * winheight(0) + 24) / 48)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 317
+keepjumps 50
 normal! 0
-lcd ~/Development/j/flashcard-adder
 wincmd w
 argglobal
-if bufexists(fnamemodify("term://~/Development/j/flashcard-adder//9119:/bin/bash", ":p")) | buffer term://~/Development/j/flashcard-adder//9119:/bin/bash | else | edit term://~/Development/j/flashcard-adder//9119:/bin/bash | endif
+if bufexists(fnamemodify("term://~/j/flashcard-adder//11277:/bin/bash", ":p")) | buffer term://~/j/flashcard-adder//11277:/bin/bash | else | edit term://~/j/flashcard-adder//11277:/bin/bash | endif
 if &buftype ==# 'terminal'
-  silent file term://~/Development/j/flashcard-adder//9119:/bin/bash
+  silent file term://~/j/flashcard-adder//11277:/bin/bash
 endif
-balt term://~/Development/j/flashcard-adder//17199:/bin/bash
+balt src/CardList.elm
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -116,19 +113,19 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 15 - ((14 * winheight(0) + 13) / 27)
+let s:l = 104 - ((23 * winheight(0) + 12) / 24)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 15
-normal! 0
+keepjumps 104
+normal! 059|
 wincmd w
 argglobal
-if bufexists(fnamemodify("term://~/Development/j/flashcard-adder//17199:/bin/bash", ":p")) | buffer term://~/Development/j/flashcard-adder//17199:/bin/bash | else | edit term://~/Development/j/flashcard-adder//17199:/bin/bash | endif
+if bufexists(fnamemodify("src/CardList.elm", ":p")) | buffer src/CardList.elm | else | edit src/CardList.elm | endif
 if &buftype ==# 'terminal'
-  silent file term://~/Development/j/flashcard-adder//17199:/bin/bash
+  silent file src/CardList.elm
 endif
-balt ~/Development/j/flashcard-adder/tests/Tests.elm
+balt ~/.config/nvim/init.vim
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -137,20 +134,21 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 1390 - ((25 * winheight(0) + 13) / 26)
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 133 - ((8 * winheight(0) + 11) / 23)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1390
-normal! 0
+keepjumps 133
+let s:c = 7 - ((0 * winwidth(0) + 25) / 50)
+if s:c > 0
+  exe 'normal! ' . s:c . '|zs' . 7 . '|'
+else
+  normal! 07|
+endif
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 70 + 106) / 213)
-exe 'vert 2resize ' . ((&columns * 71 + 106) / 213)
-exe '3resize ' . ((&lines * 27 + 28) / 56)
-exe 'vert 3resize ' . ((&columns * 70 + 106) / 213)
-exe '4resize ' . ((&lines * 26 + 28) / 56)
-exe 'vert 4resize ' . ((&columns * 70 + 106) / 213)
+wincmd =
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf

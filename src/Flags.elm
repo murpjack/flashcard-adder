@@ -1,7 +1,7 @@
 module Flags exposing (Flags, decode, default)
 
 import Card exposing (Card)
-import Html.Attributes exposing (selected)
+import Card.Data as Card
 import Json.Decode as Decode exposing (Decoder)
 
 
