@@ -1,10 +1,9 @@
 # Flashcard maker
-This flashcard maker app can be used 
-to create a list of simple flashcards, comprising of a `front`, and a `back`, 
-and a `title` - as a meaningful identifier.
+This flashcard maker app creates a list of simple flashcards with a `front`, and `back`, 
+and a `reference` - as an identifier. It is possible to make references non-unique.
 
 Once a list - or deck - is ready to be studied, it can be exported as a spreadsheet file, 
-which can be imported into a flashcard application, such as Anki.
+which can be imported into Anki oe any other flashcard app.
 
 ## Features
 * Create a single card with text fields.
