@@ -5,8 +5,8 @@ import Expect
 import Test exposing (..)
 
 
-dummy1 : Card
-dummy1 =
+card1 : Card
+card1 =
     Card.create "card1"
         |> (Card.changePart Card.Back "Back"
                 >> Card.changePart Card.Front "Front"
@@ -14,8 +14,8 @@ dummy1 =
            )
 
 
-dummy2 : Card
-dummy2 =
+card2 : Card
+card2 =
     Card.create "card2"
         |> (Card.changePart Card.Back "Back"
                 >> Card.changePart Card.Front "Front"
@@ -36,9 +36,8 @@ all =
                                     >> Card.changePart Card.Reference "Title"
                                )
 
-                    -- TODO: Fix the fact that both cards in this list have non-unique ids
                     initialCards =
-                        [ dummy1, dummy2 ]
+                        [ card1, card2 ]
                 in
                 Expect.all
                     [ \updatedList -> Expect.equal (List.length initialCards + 1) (List.length updatedList)
@@ -48,19 +47,18 @@ all =
             \_ ->
                 let
                     editedCard =
-                        Card.inProgress dummy1 <|
+                        Card.inProgress card1 <|
                             Card.edit
-                                { dummy1
+                                { card1
                                     | back = "My back gives me trouble."
                                     , front = "My ____ gives me trouble."
                                 }
 
-                    -- TODO: Fix the fact that both cards in this list have non-unique ids
                     initialCards =
-                        [ dummy1, dummy2 ]
+                        [ card1, card2 ]
 
                     editedFromList =
-                        Card.byId dummy1.id
+                        Card.byId card1.id
                 in
                 Expect.all
                     [ \updatedList -> Expect.equal (List.length initialCards) (List.length updatedList)
@@ -71,11 +69,10 @@ all =
             \_ ->
                 let
                     toDelete =
-                        dummy1
+                        card1
 
-                    -- TODO: Fix the fact that both cards in this list have non-unique ids
                     initialCards =
-                        [ dummy1, dummy2 ]
+                        [ card1, card2 ]
                 in
                 Expect.all
                     [ \updatedList -> Expect.equal (List.length initialCards - 1) (List.length updatedList)
