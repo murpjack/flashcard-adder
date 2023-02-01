@@ -1,23 +1,18 @@
-# Flashcard maker
-This flashcard maker app creates a list of simple flashcards with a `front`, and `back`, 
-and a `reference` - as an identifier. It is possible to make references non-unique.
+# Flashcard adder
+Flashcard adder creates simple flashcards with a `front`, and `back`.
 
-Once a list is ready to be studied, it can be exported as a spreadsheet file, 
-which can be imported into Anki oe any other flashcard app.
+Once a list is complete enough, it can be exported as a spreadsheet('.csv' file), 
+which can be imported into Anki web.
+
+![crud-demo](public/docs/usage-export.gif)
 
 ## Features
-* Create a single card with text fields.
-* Save any changes to a card that is in progress, when the `save as draft` button is pressed. 
+* Create a flashcard with a simple front and back. 
 * View list of created cards.
-* All cards visible in list can be edited.
-* All cards visible in list may be deleted.
-* List of cards is saved in browser localstorage after completing a card.
-* List of cards is restored from localstorage, where a list has been saved.
-* A List may be exported as a '.csv' file
-
-![crud-demo](public/docs/crud-demo.mp4)
-
+* Edit/delete card from list.
+* Export card list as '.csv' file which can be imported into Anki.
+* Cards are saved to browser storage on card save/delete. 
 
 ## Contributions welcome
-Please share suggestions, ideas, and raise issues or submit merge requests. 
+Please share suggestions(issues), find bugs or just jump on a merge request. 
 

@@ -1,106 +1,46 @@
-module CardList exposing (Model, Msg, init, update, view)
+module CardList exposing (view)
 
-import Browser.Navigation as Nav
 import Card exposing (Card)
 import Card.Data as Card
-import File.Download
 import Html exposing (Html)
 import Html.Attributes as Attrs
 import Html.Events as Events
-import Ports
-import Route
-
-
-type alias Model =
-    { cards : List Card
-    , navKey : Nav.Key
-    }
-
-
-type Msg
-    = CreateCardStart
-    | DeleteCard Card
-    | GoToEditPage Card.Id
-    | ExportCsvFile
-
-
-init : Maybe Card -> List Card -> Nav.Key -> ( Model, Cmd Msg )
-init card cards navKey =
-    ( { cards = cards
-      , navKey = navKey
-      }
-    , Cmd.none
-    )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        CreateCardStart ->
-            ( model
-            , Ports.sendDataOutside Ports.AskForRandomId
-            )
-
-        DeleteCard selected ->
-            let
-                updatedCards =
-                    Card.delete selected model.cards
-            in
-            ( { model
-                | cards = updatedCards
-              }
-            , Ports.sendDataOutside (Ports.SetCardsInStorage updatedCards)
-            )
-
-        GoToEditPage cardId ->
-            ( model
-            , Route.pushUrl (Route.CardEdit cardId) model.navKey
-            )
-
-        ExportCsvFile ->
-            ( model
-            , File.Download.string "cards.csv"
-                "text/csv"
-                (model.cards |> Card.asCsvString)
-            )
+import Types exposing (Model, Msg(..))
 
 
 view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.div [ Attrs.class "header" ]
-            [ Html.h1 [ Attrs.class "govuk-heading-l" ]
-                [ Html.text "Card list" ]
+            [ Html.h1 []
+                [ Html.text "Card list"
+                ]
             ]
         , if List.isEmpty model.cards then
             Html.div [ Attrs.class "no-list" ]
-                [ Html.p [ Attrs.class "govuk-body item__title" ]
+                [ Html.p [ Attrs.class "item__title" ]
                     [ Html.text "No cards have been created."
                     ]
                 ]
 
           else
             Html.div [ Attrs.class "list" ]
-                (model.cards
-                    |> List.map
-                        (\card ->
-                            cardItemView card
-                        )
-                )
+                (List.map cardItemView model.cards)
         , Html.div [ Attrs.class "footer" ]
             [ Html.div
-                [ Attrs.class "govuk-button-group"
+                [ Attrs.class "button-group"
                 ]
                 [ Html.button
                     [ Events.onClick CreateCardStart
-                    , Attrs.class "govuk-button"
-                    , Attrs.attribute "data-module" "govuk-button"
+                    , Attrs.class "button"
+                    , Attrs.attribute "data-module" "button"
                     ]
                     [ Html.text "Create card"
                     ]
                 , Html.button
-                    [ Attrs.class "govuk-button  govuk-button--secondary"
+                    [ Attrs.class "button button--secondary"
                     , Events.onClick ExportCsvFile
+                    , Attrs.disabled (List.length model.cards == 0)
                     ]
                     [ Html.text "Export .csv file" ]
                 ]
@@ -111,42 +51,49 @@ view model =
 cardItemView : Card -> Html Msg
 cardItemView card =
     let
-        cardRef =
+        originalCard =
             case card.progress of
                 Card.InProgress original ->
-                    original.reference
+                    original
 
                 _ ->
-                    card.reference
+                    card
+
+        textWithPlaceholder part =
+            if part == "" then
+                "!! No previous view !!"
+
+            else
+                part
     in
     Html.div [ Attrs.class "list__item" ]
-        [ Html.p [ Attrs.class "govuk-body item__title" ] [ Html.text cardRef ]
+        [ Html.div
+            [ Attrs.class "item__title" ]
+            [ Html.label [] [ Html.text "front:" ]
+            , Html.p [] [ Html.text (textWithPlaceholder originalCard.front) ]
+            ]
+        , Html.div
+            [ Attrs.class "item__title" ]
+            [ Html.label [] [ Html.text "back:" ]
+            , Html.p [] [ Html.text (textWithPlaceholder originalCard.back) ]
+            ]
         , Html.div
             [ Attrs.classList
-                [ ( "govuk-warning-text warning__content", True )
+                [ ( "warning", True )
                 , ( "warning-hidden", not (Card.isInProgress card) )
                 ]
             ]
-            [ Html.span
-                [ Attrs.class "govuk-warning-text__icon"
-                , Attrs.attribute "aria-hidden" "true"
-                ]
-                [ Html.text "!" ]
-            , Html.strong [ Attrs.class "govuk-warning-text__text" ]
-                [ Html.span [ Attrs.class "govuk-warning-text__assistive" ]
-                    [ Html.text "Warning" ]
-                , Html.text
-                    "Draft"
-                ]
+            [ Html.span [ Attrs.attribute "aria-hidden" "true" ] []
+            , Html.strong [] [ Html.text "Draft" ]
             ]
-        , Html.div [ Attrs.class "govuk-button-group" ]
+        , Html.div [ Attrs.class "button-group" ]
             [ Html.button
-                [ Attrs.class "govuk-button govuk-button--secondary"
+                [ Attrs.class "button"
                 , Events.onClick (GoToEditPage card.id)
                 ]
                 [ Html.text "Edit" ]
             , Html.button
-                [ Attrs.class "govuk-button govuk-button--warning"
+                [ Attrs.class "button button--warning"
                 , Events.onClick (DeleteCard card)
                 ]
                 [ Html.text "Delete" ]

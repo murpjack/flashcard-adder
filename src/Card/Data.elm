@@ -23,7 +23,7 @@ decode =
         (Decode.field "back" Decode.string)
         (Decode.field "front" Decode.string)
         (Decode.field "progress" decodeProgressTuple)
-        (Decode.field "title" Decode.string)
+        (Decode.field "reference" Decode.string)
 
 
 decodeChildren : Decoder Card
@@ -119,7 +119,7 @@ decodeProgressTuple =
 toCsvData : List Card -> Csv
 toCsvData cards =
     Csv
-        [ "back", "front", "title" ]
+        [ "front", "back", "title" ]
         (List.map toRow cards)
 
 

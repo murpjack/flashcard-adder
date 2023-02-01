@@ -26,7 +26,7 @@ matchRoute : UrlParser.Parser (Route -> a) a
 matchRoute =
     -- TODO Is it best practice to have 2 routes going to the same page
     UrlParser.oneOf
-        [ UrlParser.map CardList (UrlParser.s "card")
+        [ UrlParser.map CardList UrlParser.top
         , UrlParser.map CardEdit (UrlParser.s "card" </> cardIdParser)
         ]
 
@@ -50,7 +50,7 @@ toString route =
             "/not-found"
 
         CardList ->
-            "/card/"
+            "/"
 
         CardEdit cardId ->
             "/card/" ++ Card.idToString cardId

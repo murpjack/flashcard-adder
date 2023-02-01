@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# required by magit
+unset GIT_LITERAL_PATHSPECS
+
 echo "Running pre-commit hook"
 npx elm-test
 

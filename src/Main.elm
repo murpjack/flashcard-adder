@@ -1,18 +1,18 @@
 module Main exposing (..)
 
 import Browser
-import Browser.Navigation as Nav
-import Card exposing (Card)
+import Card
+import Card.Data as Card
 import CardEdit
 import CardList
-import Flags exposing (Flags)
+import File.Download
+import Flags
 import Html exposing (Html)
-import Html.Attributes as Attrs exposing (selected)
+import Html.Attributes as Attrs
 import Json.Decode as Decode
 import Maybe.Extra as Maybe
 import Ports
-import Route exposing (Route)
-import Url exposing (Url)
+import Types exposing (Model, Msg(..), Page(..))
 
 
 
@@ -21,13 +21,11 @@ import Url exposing (Url)
 
 main : Program Decode.Value Model Msg
 main =
-    Browser.application
+    Browser.document
         { view = view
         , init = init
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = LinkClicked
-        , onUrlChange = UrlChanged
         }
 
 
@@ -41,23 +39,8 @@ subscriptions _ =
 ---- MODEL ----
 
 
-type alias Model =
-    { cards : List Card
-    , route : Route
-    , selected : Maybe Card
-    , navKey : Nav.Key
-    , page : Page
-    }
-
-
-type Page
-    = NotFoundPage
-    | CardListPage CardList.Model
-    | CardEditPage CardEdit.Model
-
-
-init : Decode.Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url navKey =
+init : Decode.Value -> ( Model, Cmd Msg )
+init flags =
     let
         f =
             Decode.decodeValue Flags.decode flags
@@ -83,53 +66,11 @@ init flags url navKey =
                         )
                     |> Maybe.withDefault f.cards
             , selected = f.selected
-            , route = Route.parseUrl url
-            , page = NotFoundPage
-            , navKey = navKey
+            , page = CardListPage
             }
     in
-    initCurrentPage
-        ( model
-        , Cmd.none
-        )
-
-
-initCurrentPage :
-    ( Model, Cmd Msg )
-    -> ( Model, Cmd Msg )
-initCurrentPage ( model, existingCmds ) =
-    let
-        ( page, mappedPageCmds ) =
-            case model.route of
-                Route.NotFound ->
-                    ( NotFoundPage, Cmd.none )
-
-                Route.CardEdit id ->
-                    let
-                        ( pageModel, pageCmds ) =
-                            CardEdit.init
-                                (model.selected
-                                    |> Maybe.orElse (Card.byId id model.cards)
-                                    |> Maybe.withDefault (Card.create "err")
-                                )
-                                model.cards
-                                model.navKey
-                    in
-                    ( CardEditPage pageModel
-                    , Cmd.map CardEditPageMsg pageCmds
-                    )
-
-                Route.CardList ->
-                    let
-                        ( pageModel, pageCmds ) =
-                            CardList.init model.selected model.cards model.navKey
-                    in
-                    ( CardListPage pageModel
-                    , Cmd.map CardListPageMsg pageCmds
-                    )
-    in
-    ( { model | page = page }
-    , Cmd.batch [ existingCmds, mappedPageCmds ]
+    ( model
+    , Cmd.none
     )
 
 
@@ -137,102 +78,251 @@ initCurrentPage ( model, existingCmds ) =
 ---- UPDATE ----
 
 
-type Msg
-    = OnIncomingData (Result String Ports.DataForElm)
-    | CardEditPageMsg CardEdit.Msg
-    | CardListPageMsg CardList.Msg
-    | UrlChanged Url
-    | LinkClicked Browser.UrlRequest
-    | NoOp
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( msg, model.page ) of
-        ( CardListPageMsg subMsg, CardListPage pageModel ) ->
-            let
-                ( updatedPageModel, updatedCmd ) =
-                    CardList.update subMsg pageModel
+    case msg of
+        --  ( CardListPageMsg subMsg, CardListPage pageModel ) ->
+        --      let
+        --          ( updatedPageModel, updatedCmd ) =
+        --              CardList.update subMsg pageModel
+        --          selected =
+        --              model.selected
+        --                  |> Maybe.andThen
+        --                      (\card ->
+        --                          Card.byId card.id updatedPageModel.cards
+        --                      )
+        --      in
+        --      ( { model
+        --          | cards = updatedPageModel.cards
+        --          , selected = selected
+        --          , page = CardListPage updatedPageModel
+        --        }
+        --      , Cmd.batch
+        --          ((case selected of
+        --              Just _ ->
+        --                  []
+        --              Nothing ->
+        --                  [ Ports.sendDataOutside Ports.ClearSelectedInStorage ]
+        --           )
+        --              ++ [ Cmd.map CardListPageMsg updatedCmd
+        --                 ]
+        --          )
+        --      )
+        --  ( CardEditPageMsg subMsg, CardEditPage pageModel ) ->
+        --      let
+        --          ( updatedPageModel, updatedCmd ) =
+        --              CardEdit.update subMsg pageModel
+        --      in
+        --      ( { model
+        --          | cards = updatedPageModel.cards
+        --          , selected = Just updatedPageModel.selected
+        --          , page = CardEditPage updatedPageModel
+        --        }
+        --      , Cmd.map CardEditPageMsg updatedCmd
+        --      )
+        OnIncomingData (Ok (Ports.GetRandomId id)) ->
+            Card.create id
+                |> Card.inProgress (Card.create id)
+                |> (\card ->
+                        ( { model
+                            | cards = Card.toList model.cards card
+                            , selected = Just card
+                            , page = CardEditPage
+                          }
+                        , Cmd.none
+                        )
+                   )
 
+        OnIncomingData _ ->
+            ( model, Cmd.none )
+
+        --  ( UrlChanged url, _ ) ->
+        --      let
+        --          newRoute =
+        --              Route.parseUrl url
+        --      in
+        --      ( { model | route = newRoute }
+        --      , Cmd.none
+        --      )
+        --          |> initCurrentPage
+        --  ( LinkClicked urlRequest, _ ) ->
+        --      case urlRequest of
+        --          Browser.Internal url ->
+        --              ( model
+        --              , Nav.pushUrl model.navKey (Url.toString url)
+        --              )
+        --          Browser.External url ->
+        --              ( model
+        --              , Nav.load url
+        --              )
+        CreateCardStart ->
+            ( model
+            , Ports.sendDataOutside Ports.AskForRandomId
+            )
+
+        DeleteCard selected ->
+            let
+                updatedCards =
+                    Card.delete selected model.cards
+            in
+            ( { model
+                | cards = updatedCards
+              }
+            , Ports.sendDataOutside (Ports.SetCardsInStorage updatedCards)
+            )
+
+        GoToEditPage cardId ->
+            let
                 selected =
-                    model.selected
-                        |> Maybe.andThen
+                    Card.byId cardId model.cards
+                        |> Maybe.map
                             (\card ->
-                                Card.byId card.id updatedPageModel.cards
+                                case card.progress of
+                                    Card.InProgress _ ->
+                                        card
+
+                                    _ ->
+                                        Card.inProgress card card
                             )
             in
             ( { model
-                | cards = updatedPageModel.cards
-                , selected = selected
-                , page = CardListPage updatedPageModel
-              }
-            , Cmd.batch
-                ((case selected of
-                    Just _ ->
-                        []
-
-                    Nothing ->
-                        [ Ports.sendDataOutside Ports.ClearSelectedInStorage ]
-                 )
-                    ++ [ Cmd.map CardListPageMsg updatedCmd
-                       ]
-                )
-            )
-
-        ( CardEditPageMsg subMsg, CardEditPage pageModel ) ->
-            let
-                ( updatedPageModel, updatedCmd ) =
-                    CardEdit.update subMsg pageModel
-            in
-            ( { model
-                | cards = updatedPageModel.cards
-                , selected = Just updatedPageModel.selected
-                , page = CardEditPage updatedPageModel
-              }
-            , Cmd.map CardEditPageMsg updatedCmd
-            )
-
-        ( OnIncomingData (Ok (Ports.GetRandomId id)), _ ) ->
-            let
-                url =
-                    "/card/" ++ id ++ "/"
-            in
-            ( { model
-                | selected = Just (Card.create id)
+                | selected = selected
                 , cards =
-                    Card.create id
-                        |> Card.toList model.cards
+                    selected
+                        |> Maybe.map (Card.toList model.cards)
+                        |> Maybe.withDefault model.cards
+                , page = CardEditPage
               }
-            , Nav.pushUrl model.navKey url
-            )
-
-        ( OnIncomingData _, _ ) ->
-            ( model, Cmd.none )
-
-        ( UrlChanged url, _ ) ->
-            let
-                newRoute =
-                    Route.parseUrl url
-            in
-            ( { model | route = newRoute }
             , Cmd.none
             )
-                |> initCurrentPage
 
-        ( LinkClicked urlRequest, _ ) ->
-            case urlRequest of
-                Browser.Internal url ->
-                    ( model
-                    , Nav.pushUrl model.navKey (Url.toString url)
-                    )
+        ExportCsvFile ->
+            ( model
+            , File.Download.string "cards.csv"
+                "text/csv"
+                (model.cards |> Card.asCsvString)
+            )
 
-                Browser.External url ->
-                    ( model
-                    , Nav.load url
-                    )
+        AddCardToList ->
+            {--
+                TODO Should this action work where the card is empty?
+-}
+            let
+                updatedCards =
+                    model.selected
+                        |> Maybe.map (Card.finished >> Card.toList model.cards)
+                        |> Maybe.withDefault model.cards
+            in
+            ( { model
+                | cards = updatedCards
+                , selected = Nothing
+                , page = CardListPage
+              }
+            , Cmd.batch
+                [ Ports.sendDataOutside (Ports.SetCardsInStorage updatedCards)
+                , Ports.sendDataOutside Ports.ClearSelectedInStorage
+                ]
+            )
 
-        ( _, _ ) ->
-            ( model, Cmd.none )
+        SaveDraft ->
+            let
+                updatedCards =
+                    model.selected
+                        |> Maybe.map (Card.toList model.cards)
+                        |> Maybe.withDefault model.cards
+            in
+            ( { model
+                | cards = updatedCards
+                , selected = Nothing
+                , page = CardListPage
+              }
+            , Cmd.batch
+                [ Ports.sendDataOutside (Ports.SetCardsInStorage updatedCards)
+                , Ports.sendDataOutside Ports.ClearSelectedInStorage
+                ]
+            )
+
+        DiscardSelected ->
+            {--
+                It should remove currently in progress card
+                It should update selected in list with the InProgress original value
+                
+                If discarding, then selected 'MUST' (logically) be InProgress
+
+                scenario 1 
+                a new card is being edited. No changes are made 
+                ** -ie. the fields are both empty
+                >> On discard, the card is deleted
+
+                scenario 2
+                an existing card is being edited, no changes are made 
+                >> On discard, the card is reverted to original
+-}
+            let
+                revertSelected =
+                    model.selected
+                        |> Maybe.map
+                            (\selected ->
+                                case selected.progress of
+                                    Card.InProgress original ->
+                                        Card.notStarted original
+
+                                    _ ->
+                                        -- This state should be impossible to reach
+                                        selected
+                            )
+
+                updatedCards =
+                    model.selected
+                        |> Maybe.map
+                            (\card ->
+                                case card.progress of
+                                    Card.InProgress original ->
+                                        if Card.isEmpty card || Card.noChanges card original then
+                                            Card.delete card model.cards
+
+                                        else
+                                            revertSelected
+                                                |> Maybe.map (Card.toList model.cards)
+                                                |> Maybe.withDefault model.cards
+
+                                    _ ->
+                                        -- This should be an impossible state
+                                        model.cards
+                            )
+                        |> Maybe.withDefault model.cards
+            in
+            ( { model
+                | selected = Nothing
+                , cards = updatedCards
+                , page = CardListPage
+              }
+            , Cmd.batch
+                [ Ports.sendDataOutside (Ports.SetCardsInStorage updatedCards)
+                , Ports.sendDataOutside Ports.ClearSelectedInStorage
+                ]
+            )
+
+        EditCardPart selected part value ->
+            let
+                changed =
+                    selected
+                        |> Card.changePart part value
+
+                newList =
+                    Card.toList model.cards changed
+            in
+            ( { model
+                | selected = Just changed
+                , cards = newList
+              }
+            , Cmd.batch
+                [ Ports.sendDataOutside
+                    (Ports.SetSelectedInStorage changed)
+                , Ports.sendDataOutside
+                    (Ports.SetCardsInStorage newList)
+                ]
+            )
 
 
 
@@ -252,13 +342,8 @@ view model =
 currentPage : Model -> Html Msg
 currentPage model =
     case model.page of
-        CardListPage pageModel ->
-            CardList.view pageModel
-                |> Html.map CardListPageMsg
+        CardListPage ->
+            CardList.view model
 
-        CardEditPage pageModel ->
-            CardEdit.view pageModel
-                |> Html.map CardEditPageMsg
-
-        NotFoundPage ->
-            Html.text "There is a problem."
+        CardEditPage ->
+            CardEdit.view model

@@ -14,7 +14,9 @@ module Card exposing
     , idFromString
     , idToString
     , inProgress
+    , isEmpty
     , isInProgress
+    , noChanges
     , notStarted
     , partToFieldName
     , referenceFieldName
@@ -109,6 +111,16 @@ isInProgress card =
 
         _ ->
             False
+
+
+noChanges : Card -> Card -> Bool
+noChanges card original =
+    card /= original
+
+
+isEmpty : Card -> Bool
+isEmpty card =
+    card.front == "" && card.back == ""
 
 
 

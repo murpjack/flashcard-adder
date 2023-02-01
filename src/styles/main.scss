@@ -1,6 +1,3 @@
-$govuk-assets-path: "assets/";
-
-@import "govuk/all";
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -13,7 +10,8 @@ $govuk-assets-path: "assets/";
 }
 
 body {
-  font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+  font-family: "Source Sans Pro", "Trebuchet MS", "Lucida Grande",
+    "Bitstream Vera Sans", "Helvetica Neue", sans-serif;
   margin: 0;
   color: #293c4b;
 }
@@ -23,39 +21,96 @@ img {
   max-width: 200px;
 }
 
-button {
-  height: 35px;
-  min-width: 75px;
-  border: 1px solid coral;
-  background-color: azure;
+h1 {
+  font-size: 1.2rem;
+  letter-spacing: 0.04rem;
+  font-weight: 600;
+  margin: 0.24rem 0.48rem 1.2rem;
+}
+
+p {
+  font-size: 1rem;
+}
+
+label {
+  font-size: 0.88rem;
+  letter-spacing: 0.04rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+textarea {
+  display: block;
+  margin-bottom: 16px;
+  min-height: 100px;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  line-height: 1.2rem;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 0px;
+}
+
+.button {
+  width: 100%;
+  display: block;
+  padding: 0.8rem 1rem;
+  border-radius: 0.24rem;
+  color: #ffffff;
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: black;
+  border: none;
+
+  &.button--secondary {
+    background-color: gray;
+  }
+  &.button--warning {
+    background-color: darkorange;
+  }
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+    cursor: none;
+  }
 }
 
 #app {
-    background-color: #f3f2f1;
+  background-color: #f3f2f1;
   margin: 0 auto;
-  max-width: 300px;
+  width: 300px;
   padding: 10px;
+  max-height: 600px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-
+  display: flex;
+  justify-content: space-between;
 }
 
-.no-list, .list {
-    height: 450px;
-} 
-
+.no-list,
+.list {
+  height: 400px;
+}
 
 .list {
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-bottom: 20px;
-    padding-top: 5px;
-    border-bottom: 3px solid #e5e5e5;
-    border-top: 3px solid #e5e5e5;
-    width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 20px;
+  padding-top: 5px;
+  border-bottom: 3px solid #e5e5e5;
+  border-top: 3px solid #e5e5e5;
+  width: 100%;
 }
 
 .list__item {
@@ -63,60 +118,94 @@ button {
   width: 100%;
   min-height: 100px;
   background-color: #fff;
-  padding: 8px 8px 0px;
-  margin-bottom: 12px;
+  padding: 8px;
+  margin-bottom: 16px;
   box-shadow: 2px 2px 5px 0px #e3e3e3;
   border-bottom: 4px solid #bbb;
 
   .item__title {
-      margin-bottom: 10px;
+    margin-bottom: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    max-height: 100px;
+
+    & > p {
+      margin: 0.4rem 0;
+    }
   }
   .warning-hidden {
-      box-sizing: border-box;
-      visibility: hidden;
-      min-height: 30px;
-      margin-bottom: 0px !important; 
+    box-sizing: border-box;
+    visibility: hidden;
+    min-height: 30px;
+    margin-bottom: 0px !important;
   }
 
-  .warning__content {
-       margin-bottom: 10px;
+  .warning {
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
 
-       & > span,
-       & > strong {
-           font-size: 1em; 
-       }
+    & > span,
+    & > strong {
+      font-size: 0.8rem;
+    }
 
-       & > span {
-           min-height: 1.5em;
-           min-width: 1.5em;
-           line-height: 1.2em;
-           margin-top: -0.25em;
-       }
+    & > span {
+      background-color: darkorange;
+      border-radius: 50%;
+      display: block;
+      height: 2em;
+      width: 2em;
+      position: relative;
 
-       & > strong {
-           padding-left: 2em;
-       }
-   }
+      &:before {
+        display: block;
+        position: absolute;
+        top: 0;
+        content: "!";
+        color: #fff;
+        width: 100%;
+        left: 0;
+        border-radius: 50%;
+        box-sizing: border-box;
+        text-align: center;
+        line-height: 2em;
+        font-weight: 600;
+      }
+    }
+
+    & > strong {
+      padding-left: 0.48rem;
+    }
+  }
+
+  .button-group {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
 }
 
 .notification__content > p {
-    font-size: 1em;
-}
-
-.govuk-button-group {
-    margin-bottom: 5px;
-
-    & > button {
-        box-shadow: 0 3px 0 #0b0c0c;
-        border: 1px #0b0c0c solid;
-    }
+  font-size: 1em;
 }
 
 .form {
-    background-color: #fff;
-    padding: 10px;
-    margin-bottom: 16px;
-    box-shadow: 2px 2px 5px 0px #e3e3e3;
-    border-bottom: 5px solid #bbb;
+  background-color: #fff;
+  min-height: 450px;
+  padding: 10px;
+  margin-bottom: 16px;
+  box-shadow: 2px 2px 5px 0px #e3e3e3;
+  border-bottom: 5px solid #bbb;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
 
+.form-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 0;
+  width: 100%;
 }
